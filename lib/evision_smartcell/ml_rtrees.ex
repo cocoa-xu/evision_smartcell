@@ -104,7 +104,7 @@ defmodule EvisionSmartCell.ML.RTrees do
     },
     "term_criteria_eps" => %{
       :type => :number,
-      :default => "0.0"
+      :default => 0
     },
   }
   @default_keys Map.keys(@properties)
@@ -165,21 +165,21 @@ defmodule EvisionSmartCell.ML.RTrees do
   end
 
   defp set_term_criteria(attrs=%{"term_criteria_type" => "max_count", "term_criteria_count" => count, "term_criteria_eps" => eps}) do
-    {eps, ""} = Float.parse(eps)
+    IO.puts("eps: #{inspect(eps)}")
     quote do
       unquote(ESCH.quoted_var(attrs["to_variable"])) = Evision.ML.RTrees.setTermCriteria!(unquote(ESCH.quoted_var(attrs["to_variable"])), {Evision.cv_MAX_ITER(), unquote(count), unquote(eps)})
     end
   end
 
   defp set_term_criteria(attrs=%{"term_criteria_type" => "eps", "term_criteria_count" => count, "term_criteria_eps" => eps}) do
-    {eps, ""} = Float.parse(eps)
+    IO.puts("eps: #{inspect(eps)}")
     quote do
       unquote(ESCH.quoted_var(attrs["to_variable"])) = Evision.ML.RTrees.setTermCriteria!(unquote(ESCH.quoted_var(attrs["to_variable"])), {Evision.cv_EPS(), unquote(count), unquote(eps)})
     end
   end
 
   defp set_term_criteria(attrs=%{"term_criteria_type" => "max_count+eps", "term_criteria_count" => count, "term_criteria_eps" => eps}) do
-    {eps, ""} = Float.parse(eps)
+    IO.puts("eps: #{inspect(eps)}")
     quote do
       unquote(ESCH.quoted_var(attrs["to_variable"])) = Evision.ML.RTrees.setTermCriteria!(unquote(ESCH.quoted_var(attrs["to_variable"])), {Evision.cv_MAX_ITER() + Evision.cv_EPS(), unquote(count), unquote(eps)})
     end
