@@ -6,8 +6,9 @@ defmodule EvisionSmartCell.Application do
   @impl true
   def start(_type, _args) do
     smartcells = [
+      EvisionSmartCell.ML.TrainData,
       EvisionSmartCell.ML.DTrees,
-      EvisionSmartCell.ML.TrainData
+      EvisionSmartCell.ML.RTrees
     ]
     Enum.each(smartcells, fn sc -> Kino.SmartCell.register(sc) end)
 

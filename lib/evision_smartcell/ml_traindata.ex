@@ -92,7 +92,7 @@ defmodule EvisionSmartCell.ML.TrainData do
           unquote(data_layout(attrs["data_layout"])),
           Evision.Nx.to_mat!(Nx.tensor(unquote(ESCH.quoted_var(attrs["y"])), type: unquote(String.to_atom(attrs["y_type"])), backend: Evision.Backend))
         )
-        |> Evision.ML.TrainData.setTrainTestSplitRatio!(unquote(ESCH.quoted_var(attrs["split_ratio"])), shuffle: true)
+        |> Evision.ML.TrainData.setTrainTestSplitRatio!(unquote(ESCH.quoted_var(attrs["split_ratio"])), shuffle: unquote(attrs["shuffle_dataset"]))
       IO.puts("#Samples: #{Evision.ML.TrainData.getNSamples!(unquote(ESCH.quoted_var(attrs["to_variable"])))}")
       IO.puts("#Training samples: #{Evision.ML.TrainData.getNTrainSamples!(unquote(ESCH.quoted_var(attrs["to_variable"])))}")
       IO.puts("#Test samples: #{Evision.ML.TrainData.getNTestSamples!(unquote(ESCH.quoted_var(attrs["to_variable"])))}")
