@@ -87,7 +87,6 @@ defmodule EvisionSmartCell.ML.RTrees do
     fields = ESCH.update_key_with_module(fields, key, @inner_to_module[key], fn _, _ -> true end)
 
     info = [id: @smartcell_id, fields: fields]
-    IO.puts("info: #{inspect(info)}")
     {:ok, assign(ctx, info)}
   end
 

@@ -77,7 +77,6 @@ defmodule EvisionSmartCell.ML.DTrees do
     end)
 
     info = [id: @smartcell_id, fields: fields]
-    IO.puts("info: #{inspect(info)}")
     {:ok, assign(ctx, info)}
   end
 
@@ -127,7 +126,6 @@ defmodule EvisionSmartCell.ML.DTrees do
   end
 
   def get_quoted_code(attrs) do
-    IO.puts("attrs: #{inspect(attrs)}")
     quote do
       unquote(ESCH.quoted_var(attrs["to_variable"])) =
         Evision.ML.DTrees.create!()
