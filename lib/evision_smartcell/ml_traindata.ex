@@ -1,9 +1,11 @@
 defmodule EvisionSmartCell.ML.TrainData do
-  use Kino.JS, assets_path: "lib/assets/ML/TrainData"
+  use Kino.JS, assets_path: "lib/assets"
   use Kino.JS.Live
   use Kino.SmartCell, name: "Evision: Train Data"
 
   alias EvisionSmartCell.Helper, as: ESCH
+
+  @smartcell_id "evision.ml.traindata"
 
   @properties %{
     "x" => %{
@@ -30,7 +32,7 @@ defmodule EvisionSmartCell.ML.TrainData do
     "split_ratio" => %{
       :type => :number,
       :opts => [minimum: 0.0, maximum: 1.0],
-      :default => "0.8"
+      :default => 0.8
     },
     "shuffle_dataset" => %{
       :type => :boolean,
@@ -41,9 +43,19 @@ defmodule EvisionSmartCell.ML.TrainData do
       :default => "dataset"
     },
   }
-  @default_keys Map.keys(@properties)
 
+  @spec id :: String.t()
+  def id, do: @smartcell_id
+
+  @spec properties :: map()
   def properties, do: @properties
+
+  @spec defaults :: map()
+  def defaults do
+    Map.new(Enum.map(@properties, fn {field, field_specs} ->
+      {field, field_specs[:default]}
+    end))
+  end
 
   @impl true
   def init(attrs, ctx) do
@@ -52,12 +64,12 @@ defmodule EvisionSmartCell.ML.TrainData do
         {field, attrs[field] || field_specs[:default]}
       end)
 
-    {:ok, assign(ctx, fields: Map.new(fields))}
+    {:ok, assign(ctx, fields: Map.new(fields), id: @smartcell_id)}
   end
 
   @impl true
   def handle_connect(ctx) do
-    {:ok, %{fields: ctx.assigns.fields}, ctx}
+    {:ok, %{fields: ctx.assigns.fields, id: @smartcell_id}, ctx}
   end
 
   @impl true
@@ -68,14 +80,14 @@ defmodule EvisionSmartCell.ML.TrainData do
     {:noreply, ctx}
   end
 
-  defp to_updates(_fields, name, value) do
+  def to_updates(_fields, name, value) do
     property = @properties[name]
     %{name => ESCH.to_update(value, property[:type], Access.get(property, :opts))}
   end
 
   @impl true
   def to_attrs(%{assigns: %{fields: fields}}) do
-    Map.take(fields, @default_keys)
+    fields
   end
 
   @impl true
@@ -92,7 +104,7 @@ defmodule EvisionSmartCell.ML.TrainData do
           unquote(data_layout(attrs["data_layout"])),
           Evision.Nx.to_mat!(Nx.tensor(unquote(ESCH.quoted_var(attrs["y"])), type: unquote(String.to_atom(attrs["y_type"])), backend: Evision.Backend))
         )
-        |> Evision.ML.TrainData.setTrainTestSplitRatio!(unquote(ESCH.quoted_var(attrs["split_ratio"])), shuffle: unquote(attrs["shuffle_dataset"]))
+        |> Evision.ML.TrainData.setTrainTestSplitRatio!(unquote(attrs["split_ratio"]), shuffle: unquote(attrs["shuffle_dataset"]))
       IO.puts("#Samples: #{Evision.ML.TrainData.getNSamples!(unquote(ESCH.quoted_var(attrs["to_variable"])))}")
       IO.puts("#Training samples: #{Evision.ML.TrainData.getNTrainSamples!(unquote(ESCH.quoted_var(attrs["to_variable"])))}")
       IO.puts("#Test samples: #{Evision.ML.TrainData.getNTestSamples!(unquote(ESCH.quoted_var(attrs["to_variable"])))}")

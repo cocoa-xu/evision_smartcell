@@ -80,4 +80,41 @@ defmodule EvisionSmartCell.Helper do
       nil
     end
   end
+
+  def update_key_with_module(fields, key, module, conflicit \\ :loaded, on_condition) do
+    if on_condition.(fields, key) do
+      fill_or_merge_defaults(fields, key, module, conflicit)
+    else
+      fields
+    end
+  end
+
+  def fill_or_merge_defaults(fields, key, module, conflicit \\ :loaded) do
+    if fields[key] == nil do
+      Map.put(fields, key, module.defaults())
+    else
+      merge_properties(fields[key], module.defaults(), conflicit)
+    end
+  end
+
+  def to_inner_updates(inner_name, inner_module, field, value, ctx) do
+    inner_fields = ctx.assigns.fields[inner_name]
+    updated_fields = inner_module.to_updates(inner_fields, field, value)
+    %{inner_name => Map.merge(inner_fields, updated_fields)}
+  end
+
+  def merge_properties(loaded, default, conflicit \\ :loaded) do
+    Map.merge(loaded, default, fn _key, loaded_value, default_specs ->
+      case conflicit do
+        :loaded ->
+          if loaded_value != nil do
+            loaded_value
+          else
+            default_specs[:default]
+          end
+        :default ->
+          default_specs[:default]
+      end
+    end)
+  end
 end
