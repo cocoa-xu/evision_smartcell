@@ -10,7 +10,7 @@ by adding `evision_smartcell` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:evision_smartcell, "~> 0.1.0"}
+    {:evision_smartcell, "~> 0.2.0"}
   ]
 end
 ```
