@@ -4,7 +4,7 @@ defmodule EvisionSmartCell.MixProject do
   def project do
     [
       app: :evision_smartcell,
-      version: "0.1.0",
+      version: "0.2.0",
       elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       deps: deps()
@@ -19,7 +19,7 @@ defmodule EvisionSmartCell.MixProject do
 
   defp deps do
     [
-      {:kino, "~> 0.6.2"}
+      {:kino, "~> 0.7"}
     ]
   end
 end

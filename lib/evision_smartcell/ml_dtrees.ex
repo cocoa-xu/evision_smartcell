@@ -128,11 +128,11 @@ defmodule EvisionSmartCell.ML.DTrees do
   def get_quoted_code(attrs) do
     quote do
       unquote(ESCH.quoted_var(attrs["to_variable"])) =
-        Evision.ML.DTrees.create!()
-        |> Evision.ML.DTrees.setMaxDepth!(unquote(attrs["max_depth"]))
-        |> Evision.ML.DTrees.setMaxCategories!(unquote(attrs["max_categories"]))
-        |> Evision.ML.DTrees.setCVFolds!(unquote(attrs["cv_folds"]))
-        |> Evision.ML.DTrees.setMinSampleCount!(unquote(attrs["min_sample_count"]))
+        Evision.ML.DTrees.create()
+        |> Evision.ML.DTrees.setMaxDepth(unquote(attrs["max_depth"]))
+        |> Evision.ML.DTrees.setMaxCategories(unquote(attrs["max_categories"]))
+        |> Evision.ML.DTrees.setCVFolds(unquote(attrs["cv_folds"]))
+        |> Evision.ML.DTrees.setMinSampleCount(unquote(attrs["min_sample_count"]))
 
       unquote(train_on_dataset(attrs))
     end
@@ -140,14 +140,14 @@ defmodule EvisionSmartCell.ML.DTrees do
 
   defp train_on_dataset(%{"data_from" => "traindata_var", "traindata_var" => traindata_var, "to_variable" => to_variable}) do
     quote do
-      Evision.ML.DTrees.train!(unquote(ESCH.quoted_var(to_variable)), unquote(ESCH.quoted_var(traindata_var)))
+      Evision.ML.DTrees.train(unquote(ESCH.quoted_var(to_variable)), unquote(ESCH.quoted_var(traindata_var)))
 
       unquote(ESCH.quoted_var(to_variable))
-      |> Evision.ML.DTrees.calcError!(unquote(ESCH.quoted_var(traindata_var)), false)
+      |> Evision.ML.DTrees.calcError(unquote(ESCH.quoted_var(traindata_var)), false)
       |> then(&IO.puts("Training Error: #{elem(&1, 0)}"))
 
       unquote(ESCH.quoted_var(to_variable))
-      |> Evision.ML.DTrees.calcError!(unquote(ESCH.quoted_var(traindata_var)), true)
+      |> Evision.ML.DTrees.calcError(unquote(ESCH.quoted_var(traindata_var)), true)
       |> then(&IO.puts("Test Error: #{elem(&1, 0)}"))
     end
   end
@@ -156,14 +156,14 @@ defmodule EvisionSmartCell.ML.DTrees do
     dataset_variable = traindata_attrs["to_variable"]
     quote do
       unquote(TrainData.get_quoted_code(traindata_attrs))
-      Evision.ML.DTrees.train!(unquote(ESCH.quoted_var(to_variable)), unquote(ESCH.quoted_var(dataset_variable)))
+      Evision.ML.DTrees.train(unquote(ESCH.quoted_var(to_variable)), unquote(ESCH.quoted_var(dataset_variable)))
 
       unquote(ESCH.quoted_var(to_variable))
-      |> Evision.ML.DTrees.calcError!(unquote(ESCH.quoted_var(dataset_variable)), false)
+      |> Evision.ML.DTrees.calcError(unquote(ESCH.quoted_var(dataset_variable)), false)
       |> then(&IO.puts("Training Error: #{elem(&1, 0)}"))
 
       unquote(ESCH.quoted_var(to_variable))
-      |> Evision.ML.DTrees.calcError!(unquote(ESCH.quoted_var(dataset_variable)), true)
+      |> Evision.ML.DTrees.calcError(unquote(ESCH.quoted_var(dataset_variable)), true)
       |> then(&IO.puts("Test Error: #{elem(&1, 0)}"))
     end
   end

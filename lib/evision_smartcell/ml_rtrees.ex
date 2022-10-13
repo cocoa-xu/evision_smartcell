@@ -132,13 +132,13 @@ defmodule EvisionSmartCell.ML.RTrees do
   def get_quoted_code(attrs=%{"dtrees" => dtrees_attrs}) do
     quote do
       unquote(ESCH.quoted_var(attrs["to_variable"])) =
-        Evision.ML.RTrees.create!()
-        |> Evision.ML.RTrees.setMaxDepth!(unquote(dtrees_attrs["max_depth"]))
-        |> Evision.ML.RTrees.setMaxCategories!(unquote(dtrees_attrs["max_categories"]))
-        |> Evision.ML.RTrees.setCVFolds!(unquote(dtrees_attrs["cv_folds"]))
-        |> Evision.ML.RTrees.setMinSampleCount!(unquote(dtrees_attrs["min_sample_count"]))
-        |> Evision.ML.RTrees.setActiveVarCount!(unquote(attrs["active_var_count"]))
-        |> Evision.ML.RTrees.setCalculateVarImportance!(unquote(attrs["calculate_var_importance"]))
+        Evision.ML.RTrees.create()
+        |> Evision.ML.RTrees.setMaxDepth(unquote(dtrees_attrs["max_depth"]))
+        |> Evision.ML.RTrees.setMaxCategories(unquote(dtrees_attrs["max_categories"]))
+        |> Evision.ML.RTrees.setCVFolds(unquote(dtrees_attrs["cv_folds"]))
+        |> Evision.ML.RTrees.setMinSampleCount(unquote(dtrees_attrs["min_sample_count"]))
+        |> Evision.ML.RTrees.setActiveVarCount(unquote(attrs["active_var_count"]))
+        |> Evision.ML.RTrees.setCalculateVarImportance(unquote(attrs["calculate_var_importance"]))
 
       unquote(set_term_criteria(attrs))
       unquote(train_on_dataset(attrs))
@@ -147,32 +147,32 @@ defmodule EvisionSmartCell.ML.RTrees do
 
   defp set_term_criteria(attrs=%{"term_criteria_type" => "max_count", "term_criteria_count" => count, "term_criteria_eps" => eps}) do
     quote do
-      unquote(ESCH.quoted_var(attrs["to_variable"])) = Evision.ML.RTrees.setTermCriteria!(unquote(ESCH.quoted_var(attrs["to_variable"])), {Evision.cv_MAX_ITER(), unquote(count), unquote(eps)})
+      unquote(ESCH.quoted_var(attrs["to_variable"])) = Evision.ML.RTrees.setTermCriteria(unquote(ESCH.quoted_var(attrs["to_variable"])), {Evision.cv_MAX_ITER(), unquote(count), unquote(eps)})
     end
   end
 
   defp set_term_criteria(attrs=%{"term_criteria_type" => "eps", "term_criteria_count" => count, "term_criteria_eps" => eps}) do
     quote do
-      unquote(ESCH.quoted_var(attrs["to_variable"])) = Evision.ML.RTrees.setTermCriteria!(unquote(ESCH.quoted_var(attrs["to_variable"])), {Evision.cv_EPS(), unquote(count), unquote(eps)})
+      unquote(ESCH.quoted_var(attrs["to_variable"])) = Evision.ML.RTrees.setTermCriteria(unquote(ESCH.quoted_var(attrs["to_variable"])), {Evision.cv_EPS(), unquote(count), unquote(eps)})
     end
   end
 
   defp set_term_criteria(attrs=%{"term_criteria_type" => "max_count+eps", "term_criteria_count" => count, "term_criteria_eps" => eps}) do
     quote do
-      unquote(ESCH.quoted_var(attrs["to_variable"])) = Evision.ML.RTrees.setTermCriteria!(unquote(ESCH.quoted_var(attrs["to_variable"])), {Evision.cv_MAX_ITER() + Evision.cv_EPS(), unquote(count), unquote(eps)})
+      unquote(ESCH.quoted_var(attrs["to_variable"])) = Evision.ML.RTrees.setTermCriteria(unquote(ESCH.quoted_var(attrs["to_variable"])), {Evision.cv_MAX_ITER() + Evision.cv_EPS(), unquote(count), unquote(eps)})
     end
   end
 
   defp train_on_dataset(%{"data_from" => "traindata_var", "traindata_var" => traindata_var, "to_variable" => to_variable}) do
     quote do
-      Evision.ML.RTrees.train!(unquote(ESCH.quoted_var(to_variable)), unquote(ESCH.quoted_var(traindata_var)))
+      Evision.ML.RTrees.train(unquote(ESCH.quoted_var(to_variable)), unquote(ESCH.quoted_var(traindata_var)))
 
       unquote(ESCH.quoted_var(to_variable))
-      |> Evision.ML.RTrees.calcError!(unquote(ESCH.quoted_var(traindata_var)), false)
+      |> Evision.ML.RTrees.calcError(unquote(ESCH.quoted_var(traindata_var)), false)
       |> then(&IO.puts("Training Error: #{elem(&1, 0)}"))
 
       unquote(ESCH.quoted_var(to_variable))
-      |> Evision.ML.RTrees.calcError!(unquote(ESCH.quoted_var(traindata_var)), true)
+      |> Evision.ML.RTrees.calcError(unquote(ESCH.quoted_var(traindata_var)), true)
       |> then(&IO.puts("Test Error: #{elem(&1, 0)}"))
     end
   end
@@ -181,14 +181,14 @@ defmodule EvisionSmartCell.ML.RTrees do
     dataset_variable = traindata_attrs["to_variable"]
     quote do
       unquote(TrainData.get_quoted_code(traindata_attrs))
-      Evision.ML.RTrees.train!(unquote(ESCH.quoted_var(to_variable)), unquote(ESCH.quoted_var(dataset_variable)))
+      Evision.ML.RTrees.train(unquote(ESCH.quoted_var(to_variable)), unquote(ESCH.quoted_var(dataset_variable)))
 
       unquote(ESCH.quoted_var(to_variable))
-      |> Evision.ML.RTrees.calcError!(unquote(ESCH.quoted_var(dataset_variable)), false)
+      |> Evision.ML.RTrees.calcError(unquote(ESCH.quoted_var(dataset_variable)), false)
       |> then(&IO.puts("Training Error: #{elem(&1, 0)}"))
 
       unquote(ESCH.quoted_var(to_variable))
-      |> Evision.ML.RTrees.calcError!(unquote(ESCH.quoted_var(dataset_variable)), true)
+      |> Evision.ML.RTrees.calcError(unquote(ESCH.quoted_var(dataset_variable)), true)
       |> then(&IO.puts("Test Error: #{elem(&1, 0)}"))
     end
   end
