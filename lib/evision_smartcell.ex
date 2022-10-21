@@ -7,6 +7,7 @@ defmodule EvisionSmartCell.Application do
   def start(_type, _args) do
     smartcells = [
       EvisionSmartCell.ML.TrainData,
+      EvisionSmartCell.ML.SVM,
       EvisionSmartCell.ML.DTrees,
       EvisionSmartCell.ML.RTrees
     ]
