@@ -35,6 +35,46 @@ defmodule EvisionSmartCell.ML.SVM do
       :default => "svm"
     },
 
+    ## -- kernel parameter --
+    ## Only used for SVM if its kernel type is one of
+    ## [SVM::POLY, SVM::RBF, SVM::SIGMOID, SVM::CHI2]
+    "gamma" => %{
+      :type => :number,
+      :default => 1
+    },
+    ## Only used for SVM if its kernel type is one of
+    ## [SVM::POLY, SVM::SIGMOID]
+    "coef0" => %{
+      :type => :number,
+      :default => 0
+    },
+    ## Only used for SVM if its kernel type is one of
+    ## [SVM::POLY]
+    "degree" => %{
+      :type => :number,
+      :default => 0
+    },
+
+    ## -- svm parameter --
+    ## Only used for SVM if its type is one of
+    ## [SVM::C_SVC, SVM::EPS_SVR, SVM::NU_SVR]
+    "c" => %{
+      :type => :number,
+      :default => 1
+    },
+    ## Only used for SVM if its type is one of
+    ## [SVM::NU_SVC, SVM::ONE_CLASS or SVM::NU_SVR]
+    "nu" => %{
+      :type => :number,
+      :default => 0
+    },
+    ## Only used for SVM if its type is one of
+    ## [SVM::EPS_SVR]
+    "p" => %{
+      :type => :number,
+      :default => 0
+    },
+
     # TermCriteria
     "term_criteria_type" => %{
       :type => :string,
@@ -138,9 +178,84 @@ defmodule EvisionSmartCell.ML.SVM do
         |> Evision.ML.SVM.setType(unquote(ESCH.quoted_var("Evision.cv_#{attrs["type"]}()")))
         |> Evision.ML.SVM.setKernel(unquote(ESCH.quoted_var("Evision.cv_#{attrs["kernel_type"]}()")))
 
+      unquote(set_svm_param(attrs))
+      unquote(set_kernel_param(attrs))
       unquote(set_term_criteria(attrs))
       unquote(train_on_dataset(attrs))
     end
+  end
+
+  defp set_svm_param(attrs=%{"type" => "C_SVC"}) do
+    quote do
+      unquote(ESCH.quoted_var(attrs["to_variable"])) = Evision.ML.SVM.setC(unquote(ESCH.quoted_var(attrs["to_variable"])), unquote(attrs["c"]))
+    end
+  end
+
+  defp set_svm_param(attrs=%{"type" => "NU_SVC"}) do
+    quote do
+      unquote(ESCH.quoted_var(attrs["to_variable"])) = Evision.ML.SVM.setNu(unquote(ESCH.quoted_var(attrs["to_variable"])), unquote(attrs["nu"]))
+    end
+  end
+
+  defp set_svm_param(attrs=%{"type" => "ONE_CLASS"}) do
+    quote do
+      unquote(ESCH.quoted_var(attrs["to_variable"])) = Evision.ML.SVM.setNu(unquote(ESCH.quoted_var(attrs["to_variable"])), unquote(attrs["nu"]))
+    end
+  end
+
+  defp set_svm_param(attrs=%{"type" => "EPS_SVR"}) do
+    quote do
+      unquote(ESCH.quoted_var(attrs["to_variable"])) =
+        unquote(ESCH.quoted_var(attrs["to_variable"]))
+        |> Evision.ML.SVM.setC(unquote(attrs["c"]))
+        |> Evision.ML.SVM.setP(unquote(attrs["p"]))
+    end
+  end
+
+  defp set_svm_param(attrs=%{"type" => "NU_SVR"}) do
+    quote do
+      unquote(ESCH.quoted_var(attrs["to_variable"])) =
+        unquote(ESCH.quoted_var(attrs["to_variable"]))
+        |> Evision.ML.SVM.setC(unquote(attrs["c"]))
+        |> Evision.ML.SVM.setNu(unquote(attrs["nu"]))
+    end
+  end
+
+  defp set_svm_param(_) do
+  end
+
+  defp set_kernel_param(attrs=%{"kernel_type" => "POLY"}) do
+    quote do
+      unquote(ESCH.quoted_var(attrs["to_variable"])) =
+        unquote(ESCH.quoted_var(attrs["to_variable"]))
+        |> Evision.ML.SVM.setGamma(unquote(attrs["gamma"]))
+        |> Evision.ML.SVM.setCoef0(unquote(attrs["coef0"]))
+        |> Evision.ML.SVM.setDegree(unquote(attrs["degree"]))
+    end
+  end
+
+  defp set_kernel_param(attrs=%{"kernel_type" => "RBF"}) do
+    quote do
+      unquote(ESCH.quoted_var(attrs["to_variable"])) = Evision.ML.SVM.setGamma(unquote(ESCH.quoted_var(attrs["to_variable"])), unquote(attrs["gamma"]))
+    end
+  end
+
+  defp set_kernel_param(attrs=%{"kernel_type" => "SIGMOID"}) do
+    quote do
+      unquote(ESCH.quoted_var(attrs["to_variable"])) =
+        unquote(ESCH.quoted_var(attrs["to_variable"]))
+        |> Evision.ML.SVM.setGamma(unquote(attrs["gamma"]))
+        |> Evision.ML.SVM.setCoef0(unquote(attrs["coef0"]))
+    end
+  end
+
+  defp set_kernel_param(attrs=%{"kernel_type" => "CHI2"}) do
+    quote do
+      unquote(ESCH.quoted_var(attrs["to_variable"])) = Evision.ML.SVM.setGamma(unquote(ESCH.quoted_var(attrs["to_variable"])), unquote(attrs["gamma"]))
+    end
+  end
+
+  defp set_kernel_param(_) do
   end
 
   defp set_term_criteria(attrs=%{"term_criteria_type" => "max_count", "term_criteria_count" => count, "term_criteria_eps" => eps}) do
@@ -164,14 +279,7 @@ defmodule EvisionSmartCell.ML.SVM do
   defp train_on_dataset(%{"data_from" => "traindata_var", "traindata_var" => traindata_var, "to_variable" => to_variable}) do
     quote do
       Evision.ML.SVM.train(unquote(ESCH.quoted_var(to_variable)), unquote(ESCH.quoted_var(traindata_var)))
-
-      unquote(ESCH.quoted_var(to_variable))
-      |> Evision.ML.SVM.calcError(unquote(ESCH.quoted_var(traindata_var)), false)
-      |> then(&IO.puts("Training Error: #{elem(&1, 0)}"))
-
-      unquote(ESCH.quoted_var(to_variable))
-      |> Evision.ML.SVM.calcError(unquote(ESCH.quoted_var(traindata_var)), true)
-      |> then(&IO.puts("Test Error: #{elem(&1, 0)}"))
+      unquote(TrainData.get_calc_error(Evision.ML.SVM, traindata_var, to_variable))
     end
   end
 
@@ -180,14 +288,7 @@ defmodule EvisionSmartCell.ML.SVM do
     quote do
       unquote(TrainData.get_quoted_code(traindata_attrs))
       Evision.ML.SVM.train(unquote(ESCH.quoted_var(to_variable)), unquote(ESCH.quoted_var(dataset_variable)))
-
-      unquote(ESCH.quoted_var(to_variable))
-      |> Evision.ML.SVM.calcError(unquote(ESCH.quoted_var(dataset_variable)), false)
-      |> then(&IO.puts("Training Error: #{elem(&1, 0)}"))
-
-      unquote(ESCH.quoted_var(to_variable))
-      |> Evision.ML.SVM.calcError(unquote(ESCH.quoted_var(dataset_variable)), true)
-      |> then(&IO.puts("Test Error: #{elem(&1, 0)}"))
+      unquote(TrainData.get_calc_error(Evision.ML.SVM, dataset_variable, to_variable))
     end
   end
 end
