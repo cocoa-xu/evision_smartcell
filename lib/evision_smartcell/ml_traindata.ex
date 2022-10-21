@@ -122,4 +122,30 @@ defmodule EvisionSmartCell.ML.TrainData do
       Evision.cv_COL_SAMPLE()
     end
   end
+
+  def get_calc_error(module, traindata_var, to_variable) do
+    quote do
+      unquote(ESCH.quoted_var(to_variable))
+      |> unquote(module).calcError(unquote(ESCH.quoted_var(traindata_var)), false)
+      |> then(fn r ->
+        case r do
+          {:error, error_message} ->
+            raise error_message
+          {error, _} ->
+            IO.puts("Training Error: #{error}")
+        end
+      end)
+
+      unquote(ESCH.quoted_var(to_variable))
+      |> unquote(module).calcError(unquote(ESCH.quoted_var(traindata_var)), true)
+      |> then(fn r ->
+        case r do
+          {:error, error_message} ->
+            raise error_message
+          {error, _} ->
+            IO.puts("Test Error: #{error}")
+        end
+      end)
+    end
+  end
 end

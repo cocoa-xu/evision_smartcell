@@ -142,13 +142,7 @@ defmodule EvisionSmartCell.ML.DTrees do
     quote do
       Evision.ML.DTrees.train(unquote(ESCH.quoted_var(to_variable)), unquote(ESCH.quoted_var(traindata_var)))
 
-      unquote(ESCH.quoted_var(to_variable))
-      |> Evision.ML.DTrees.calcError(unquote(ESCH.quoted_var(traindata_var)), false)
-      |> then(&IO.puts("Training Error: #{elem(&1, 0)}"))
-
-      unquote(ESCH.quoted_var(to_variable))
-      |> Evision.ML.DTrees.calcError(unquote(ESCH.quoted_var(traindata_var)), true)
-      |> then(&IO.puts("Test Error: #{elem(&1, 0)}"))
+      unquote(TrainData.get_calc_error(Evision.ML.SVM, traindata_var, to_variable))
     end
   end
 
@@ -158,13 +152,7 @@ defmodule EvisionSmartCell.ML.DTrees do
       unquote(TrainData.get_quoted_code(traindata_attrs))
       Evision.ML.DTrees.train(unquote(ESCH.quoted_var(to_variable)), unquote(ESCH.quoted_var(dataset_variable)))
 
-      unquote(ESCH.quoted_var(to_variable))
-      |> Evision.ML.DTrees.calcError(unquote(ESCH.quoted_var(dataset_variable)), false)
-      |> then(&IO.puts("Training Error: #{elem(&1, 0)}"))
-
-      unquote(ESCH.quoted_var(to_variable))
-      |> Evision.ML.DTrees.calcError(unquote(ESCH.quoted_var(dataset_variable)), true)
-      |> then(&IO.puts("Test Error: #{elem(&1, 0)}"))
+      unquote(TrainData.get_calc_error(Evision.ML.SVM, dataset_variable, to_variable))
     end
   end
 end
